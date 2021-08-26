@@ -1,10 +1,12 @@
 plugins {
     id 'java'
     id "com.github.johnrengelman.shadow" version "7.0.0"
+    id 'maven-publish'
+    id 'signing'
 }
 
 group 'fr.romaindu35'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -25,3 +27,75 @@ shadowJar {
 }
 
 tasks.build.dependsOn tasks.shadowJar
+
+/* Maven central publish code */
+task sourcesJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+    classifier 'javadoc'
+    from javadoc
+}
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact tasks.sourcesJar
+            artifact tasks.javadocJar
+            pom {
+                groupId = project.group
+                artifactId = 'pufferjavaapi'
+                version = project.version
+                name = project.name
+                description = 'A little java API to execute request on pufferpanel'
+                url = 'https://github.com/Romaindu35/PufferJavaAPI'
+
+                scm {
+                    connection = 'scm:git:git://github.com/Romaindu35/PufferJavaAPI.git'
+                    developerConnection = 'scm:git:ssh://github.com:Romaindu35/PufferJavaAPI.git'
+                    url = 'https://github.com/Romaindu35/PufferJavaAPI/tree/master'
+                }
+
+                licenses {
+                    license {
+                        name = 'Apache License 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'Romaindu35'
+                        name = "Romain SAI-TANGUY"
+                        email = "romain.sai-tanguy@sfr.fr"
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
+            }
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/content/repositories/releases/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = project.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    def signingKey = System.getenv("GPG_PRIVATE_KEY")
+    def signingPassword = System.getenv("GPG_PASSPHRASE")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
+}
