@@ -5,8 +5,10 @@ plugins {
     id 'signing'
 }
 
-group 'fr.romaindu35'
-version '1.0'
+
+group 'com.github.romaindu35'
+archivesBaseName = "PufferJavaApi"
+version '1.0.1'
 
 repositories {
     mavenCentral()
