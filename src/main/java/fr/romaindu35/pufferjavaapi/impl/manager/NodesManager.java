@@ -34,7 +34,7 @@ public class NodesManager extends Manager {
      * @return NodeManager depending on the node id asked
      * @throws PufferException
      */
-    public NodeManager getServerById(String nodeId) throws PufferException {
+    public NodeManager getNodeById(String nodeId) throws PufferException {
         return new NodeManager(pufferJavaAPI, pufferJavaAPI.send(pufferJavaAPI.getRequest().getNode(nodeId)));
     }
 
@@ -44,7 +44,7 @@ public class NodesManager extends Manager {
      * @return NodeManager depending on the node name asked
      * @throws PufferException
      */
-    public NodeManager getServerByName(String nodeName) throws PufferException {
+    public NodeManager getNodeByName(String nodeName) throws PufferException {
         AtomicReference<NodeManager> nodeManager = null;
         pufferJavaAPI.send(pufferJavaAPI.getRequest().getNodes()).forEach(nodeView -> {
             if (nodeView.getName().equalsIgnoreCase(nodeName))
